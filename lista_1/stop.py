@@ -19,3 +19,14 @@ class Stop:
 
     def add_outbound_connection(self, connection: "Connection"):
         self.outbounds.append(connection)
+
+    def __eq__(self, other):
+        if isinstance(other, Stop):
+            return self.name == other.name
+        return False
+
+    def __lt__(self, other):
+        return self.name < other.name
+
+    def __repr__(self) -> str:
+        return f"Stop(name={self.name})"

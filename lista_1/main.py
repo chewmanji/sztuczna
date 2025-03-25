@@ -3,7 +3,6 @@ from stop import Stop
 from connection import Connection
 import re
 from datetime import datetime, timedelta
-import pickle
 
 regexp = re.compile(r"(\d{2}):(\d{2}):(\d{2})")
 
