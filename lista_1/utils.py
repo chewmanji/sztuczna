@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 from connection import Connection
 import time
+import math
 
 VEHICLE_VELOCITY = 50  # km/h
 TRANSFER_TIME = 1  # minutes
@@ -83,13 +84,13 @@ def print_result(result: Optional[SearchResult], start_time: datetime):
         f"Wysiadamy z {current_connection.line} [{current_connection.end_time}] na [{current_connection.end_stop.name}]"
     )
 
-    # print("\nPrzystanki:")
-    # for connection in result.path_connections:
-    #     print(
-    #         f"Linia {connection.line}: "
-    #         f"{connection.start_stop.name} -> {connection.end_stop.name} "
-    #         f"(Odjazd: {connection.start_time}, Przyjazd: {connection.end_time})"
-    #     )
+    print("\nPrzystanki:")
+    for connection in result.path_connections:
+        print(
+            f"Linia {connection.line}: "
+            f"{connection.start_stop.name} -> {connection.end_stop.name} "
+            f"(Odjazd: {connection.start_time}, Przyjazd: {connection.end_time})"
+        )
 
 
 def calculate_transfers(connections: list[Connection]):
@@ -98,3 +99,25 @@ def calculate_transfers(connections: list[Connection]):
         if connections[i - 1].line != connections[i].line:
             transfers += 1
     return transfers
+
+
+def calculate_tabu_list_size(stops_to_visit: List[str]) -> int:
+    # Base calculation
+    base_size = len(stops_to_visit) * 3
+
+    # Additional scaling factors
+    if len(stops_to_visit) <= 3:
+        return max(10, base_size)
+    elif len(stops_to_visit) <= 5:
+        return max(20, base_size)
+    elif len(stops_to_visit) <= 10:
+        return max(50, base_size)
+    else:
+        # Use logarithmic scaling for larger numbers of stops
+        return min(
+            500,  # Upper bound to prevent excessive memory usage
+            max(
+                100,  # Lower bound
+                int(len(stops_to_visit) * math.log2(len(stops_to_visit)) * 2),
+            ),
+        )
