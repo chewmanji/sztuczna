@@ -1,33 +1,22 @@
-from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import Optional
 import heapq
 from stop import Stop
 from connection import Connection
-
-
-@dataclass
-class DijkstraResult:
-    shortest_path: List[Stop]
-    arrival_time: Optional[datetime] = None
-    total_duration: Optional[timedelta] = None
-    path_connections: List[Connection] = field(default_factory=list)
+from utils import SearchResult, calculate_transfers
 
 
 def dijkstra(
     start_stop: Stop, end_stop: Stop, arrival_time: datetime
-) -> Optional[DijkstraResult]:
+) -> Optional[SearchResult]:
     # Priority queue to store stops to visit
-    # Each item is (total_duration, stop, path_so_far, last_connection)
-    pq: list[tuple[timedelta, datetime, Stop, list[Stop], list]] = [
+    # Each item is (total_duration, arrival_time, stop, path_so_far, list_connections)
+    pq: list[tuple[timedelta, datetime, Stop, list[Stop], list[Connection]]] = [
         (timedelta(), arrival_time, start_stop, [start_stop], [])
     ]
 
     # Track visited stops to prevent cycles
     visited: set[str] = set()
-
-    # Track the best known path to each stop
-    # best_paths: Dict[Stop, DijkstraResult] = {}
 
     while pq:
         (
@@ -47,11 +36,12 @@ def dijkstra(
 
         # If we've reached the destination, return the result
         if current_stop == end_stop:
-            return DijkstraResult(
+            return SearchResult(
                 shortest_path=current_path,
                 arrival_time=current_time,
                 total_duration=current_duration,
                 path_connections=current_connections,
+                transfers=calculate_transfers(current_connections),
             )
 
         # Explore outbound connections
@@ -64,11 +54,7 @@ def dijkstra(
                 continue
 
             # Calculate total duration including this connection
-            waiting_time = (
-                connection.start_time - current_time
-                if current_time < connection.start_time
-                else current_time - connection.start_time
-            )
+            waiting_time = connection.start_time - current_time
 
             new_duration = current_duration + connection.duration + waiting_time
 
@@ -80,6 +66,7 @@ def dijkstra(
             new_connections = current_connections + [connection]
 
             # Add to priority queue
+            # solution from https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#Using_a_priority_queue
             heapq.heappush(
                 pq,
                 (
@@ -93,24 +80,3 @@ def dijkstra(
 
     # No path found
     return None
-
-
-def print_dijkstra_result(result: Optional[DijkstraResult], start_time: datetime):
-    if result is None:
-        print("No path found.")
-        return
-
-    print("Ścieżka:")
-    for stop in result.shortest_path:
-        print(f"- {stop.name}")
-
-    print(f"\nCzas podróży: {result.total_duration}")
-    print(f"Czas dotarcia do celu: {result.arrival_time}")
-
-    print("\nPrzystanki:")
-    for connection in result.path_connections:
-        print(
-            f"Line {connection.line}: "
-            f"{connection.start_stop.name} -> {connection.end_stop.name} "
-            f"(Departure: {connection.start_time}, Arrival: {connection.end_time})"
-        )

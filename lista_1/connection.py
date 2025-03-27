@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
-# Use string forward reference for Stop
+
 if TYPE_CHECKING:
     from stop import Stop
 
@@ -23,3 +23,6 @@ class Connection:
         self.start_time = start_time
         self.end_time = end_time
         self.duration = end_time - start_time
+
+    def __lt__(self, other):
+        return self.duration < other.duration
