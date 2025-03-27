@@ -5,9 +5,13 @@ from datetime import datetime, timedelta
 from typing import Optional
 import heapq
 from connection import Connection
-from utils import SearchResult, calculate_transfers
-
-VEHICLE_VELOCITY = 70  # km/h
+from utils import (
+    SearchResult,
+    calculate_transfers,
+    TRANSFER_PENALTY,
+    TRANSFER_TIME,
+    VEHICLE_VELOCITY,
+)
 
 
 def heuristic(
@@ -27,7 +31,7 @@ def heuristic(
     transfer_penalty = 0  # hours
 
     if is_transfer:
-        transfer_penalty = 0.5
+        transfer_penalty = TRANSFER_PENALTY / 60  # = TRANSFER_PENALTY/60 hours
 
     estimated_cost = distance / VEHICLE_VELOCITY + transfer_penalty
 
@@ -49,9 +53,6 @@ def a_star_min_time(
     f_score: dict[str, timedelta] = {s.name: timedelta.max for s in stops}
     f_score[start_stop.name] = timedelta(hours=heuristic(start_stop, end_stop))
 
-    # Track the best path and connections
-    came_from: dict[str, Connection] = {}
-
     # Initial queue entry: (f_score, arrival_time, stop)
     heapq.heappush(
         open_set, (f_score[start_stop.name], arrival_time, start_stop, [start_stop], [])
@@ -73,6 +74,17 @@ def a_star_min_time(
 
         # Explore outbound connections
         for connection in current_stop.outbounds:
+            is_transfer = False
+            if len(current_connections) != 0:
+                is_transfer = current_connections[-1].line != connection.line
+
+            new_current_time = current_time
+
+            if is_transfer:
+                new_current_time = new_current_time + timedelta(minutes=TRANSFER_TIME)
+                if connection.start_time < new_current_time:
+                    continue
+
             # Skip connections that start before current time
             if connection.start_time < current_time:
                 continue
@@ -91,8 +103,6 @@ def a_star_min_time(
 
             # Check if this is a better path
             if total_travel_time < g_score[neighbour.name]:
-                # Update best known path
-                came_from[neighbour.name] = connection
                 g_score[neighbour.name] = total_travel_time
                 f_score[neighbour.name] = estimated_total_cost
 
@@ -111,7 +121,6 @@ def a_star_min_time(
                     ),
                 )
 
-    # No path found
     return None
 
 
@@ -129,9 +138,6 @@ def a_star_min_transfers(
     # Estimated total cost from start to end through this stop
     f_score: dict[str, timedelta] = {s.name: timedelta.max for s in stops}
     f_score[start_stop.name] = timedelta(hours=heuristic(start_stop, end_stop))
-
-    # Track the best path and connections
-    came_from: dict[str, Connection] = {}
 
     # Initial queue entry: (f_score, arrival_time, stop)
     heapq.heappush(
@@ -154,6 +160,17 @@ def a_star_min_transfers(
 
         # Explore outbound connections
         for connection in current_stop.outbounds:
+            is_transfer = False
+            if len(current_connections) != 0:
+                is_transfer = current_connections[-1].line != connection.line
+
+            new_current_time = current_time
+
+            if is_transfer:
+                new_current_time = new_current_time + timedelta(minutes=TRANSFER_TIME)
+                if connection.start_time < new_current_time:
+                    continue
+
             # Skip connections that start before current time
             if connection.start_time < current_time:
                 continue
@@ -166,20 +183,15 @@ def a_star_min_transfers(
                 g_score[current_stop.name] + waiting_time + connection.duration
             )
 
-            # Heuristic estimate to the end stop
-            is_transfer = False
-            if len(current_connections) != 0:
-                is_transfer = current_connections[-1].line != connection.line
-
             heuristic_estimate = timedelta(
-                hours=heuristic(neighbour, end_stop, is_transfer)
+                hours=heuristic(
+                    neighbour, end_stop, is_transfer
+                )  # The only difference between time and transfer as goals
             )
             estimated_total_cost = total_travel_time + heuristic_estimate
 
             # Check if this is a better path
             if total_travel_time < g_score[neighbour.name]:
-                # Update best known path
-                came_from[neighbour.name] = connection
                 g_score[neighbour.name] = total_travel_time
                 f_score[neighbour.name] = estimated_total_cost
 
@@ -198,5 +210,4 @@ def a_star_min_transfers(
                     ),
                 )
 
-    # No path found
     return None

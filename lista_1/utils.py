@@ -4,6 +4,10 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 from connection import Connection
 
+VEHICLE_VELOCITY = 50  # km/h
+TRANSFER_TIME = 1  # minutes
+TRANSFER_PENALTY = 5  # minutes - possible delays resulting from making a line change (random accidents may occur)
+
 
 @dataclass
 class SearchResult:
@@ -38,10 +42,6 @@ def print_result(result: Optional[SearchResult], start_time: datetime):
     if result is None:
         print("Nie znaleziono połączenia.")
         return
-
-    # print("Ścieżka:")
-    # for stop in result.shortest_path:
-    #     print(f"- {stop.name}")
 
     print(f"\nCzas pojawienia się na przystanku: {start_time}")
     print(f"Czas dotarcia do celu: {bcolors.OKCYAN}{result.arrival_time}{bcolors.ENDC}")

@@ -3,7 +3,11 @@ from typing import Optional
 import heapq
 from stop import Stop
 from connection import Connection
-from utils import SearchResult, calculate_transfers
+from utils import (
+    SearchResult,
+    calculate_transfers,
+    TRANSFER_TIME,
+)
 
 
 def dijkstra(
@@ -49,6 +53,17 @@ def dijkstra(
             # Skip if destination stop is already visited
             if connection.end_stop.name in visited:
                 continue
+
+            is_transfer = False
+            if len(current_connections) != 0:
+                is_transfer = current_connections[-1].line != connection.line
+
+            new_current_time = current_time
+
+            if is_transfer:
+                new_current_time = new_current_time + timedelta(minutes=TRANSFER_TIME)
+                if connection.start_time < new_current_time:
+                    continue
 
             if connection.start_time < current_time:
                 continue
