@@ -11,6 +11,7 @@ from utils import (
     TRANSFER_PENALTY,
     TRANSFER_TIME,
     VEHICLE_VELOCITY,
+    measure_time,
 )
 
 
@@ -38,6 +39,7 @@ def heuristic(
     return estimated_cost
 
 
+@measure_time
 def a_star_min_time(
     start_stop: Stop, end_stop: Stop, arrival_time: datetime, stops: list[Stop]
 ) -> Optional[SearchResult]:
@@ -124,6 +126,7 @@ def a_star_min_time(
     return None
 
 
+@measure_time
 def a_star_min_transfers(
     start_stop: Stop, end_stop: Stop, arrival_time: datetime, stops: list[Stop]
 ) -> Optional[SearchResult]:

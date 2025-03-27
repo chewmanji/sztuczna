@@ -3,13 +3,10 @@ from typing import Optional
 import heapq
 from stop import Stop
 from connection import Connection
-from utils import (
-    SearchResult,
-    calculate_transfers,
-    TRANSFER_TIME,
-)
+from utils import SearchResult, calculate_transfers, TRANSFER_TIME, measure_time
 
 
+@measure_time
 def dijkstra(
     start_stop: Stop, end_stop: Stop, arrival_time: datetime
 ) -> Optional[SearchResult]:
@@ -93,5 +90,4 @@ def dijkstra(
                 ),
             )
 
-    # No path found
     return None
