@@ -107,6 +107,7 @@ class TabuSearchRoutePlanner:
 
             # Update tabu list
             tabu_list.append(current_solution)
+            # Constraint
             if len(tabu_list) > self.tabu_list_max_size:
                 tabu_list.pop(0)
 
@@ -135,7 +136,7 @@ class TabuSearchRoutePlanner:
             current_stop = next_stop
             current_time = route[-1].end_time
             stops_to_visit.remove(current_stop.name)
-            for stop in multi_hop_route.shortest_path:
+            for stop in multi_hop_route.get_stops():
                 if stop.name in stops_to_visit:
                     stops_to_visit.remove(stop.name)
 
@@ -241,6 +242,4 @@ def solve_route_planning_problem(
 
     total_duration = connections_solution[-1].end_time - start_time
 
-    return SearchResult(
-        list(shortest_path.values()), start_time, total_duration, connections_solution
-    )
+    return SearchResult(start_time, total_duration, connections_solution)

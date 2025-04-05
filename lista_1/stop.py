@@ -13,12 +13,16 @@ class Stop:
     lon: float
     inbounds: "list[Connection]" = field(default_factory=list)
     outbounds: "list[Connection]" = field(default_factory=list)
+    inbound_lines: set[str] = field(default_factory=set)
+    outbound_lines: set[str] = field(default_factory=set)
 
     def add_inbound_connection(self, connection: "Connection"):
         self.inbounds.append(connection)
+        self.inbound_lines.add(connection.line)
 
     def add_outbound_connection(self, connection: "Connection"):
         self.outbounds.append(connection)
+        self.outbound_lines.add(connection.line)
 
     def __eq__(self, other):
         if isinstance(other, Stop):

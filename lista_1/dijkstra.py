@@ -3,7 +3,7 @@ from typing import Optional
 import heapq
 from stop import Stop
 from connection import Connection
-from utils import SearchResult, calculate_transfers, TRANSFER_TIME, measure_time
+from utils import SearchResult, calculate_transfers, measure_time
 
 
 @measure_time
@@ -12,8 +12,8 @@ def dijkstra(
 ) -> Optional[SearchResult]:
     # Priority queue to store stops to visit
     # Each item is (total_duration, arrival_time, stop, path_so_far, list_connections)
-    pq: list[tuple[timedelta, datetime, Stop, list[Stop], list[Connection]]] = [
-        (timedelta(), arrival_time, start_stop, [start_stop], [])
+    pq: list[tuple[timedelta, datetime, Stop, list[Connection]]] = [
+        (timedelta(), arrival_time, start_stop, [])
     ]
 
     # Track visited stops to prevent cycles
@@ -24,7 +24,6 @@ def dijkstra(
             current_duration,
             current_time,
             current_stop,
-            current_path,
             current_connections,
         ) = heapq.heappop(pq)
 
@@ -38,9 +37,8 @@ def dijkstra(
         # If we've reached the destination, return the result
         if current_stop == end_stop:
             return SearchResult(
-                shortest_path=current_path,
                 arrival_time=current_time,
-                total_duration=current_duration,
+                cost=current_duration,
                 path_connections=current_connections,
                 transfers=calculate_transfers(current_connections),
             )
@@ -50,17 +48,6 @@ def dijkstra(
             # Skip if destination stop is already visited
             if connection.end_stop.name in visited:
                 continue
-
-            is_transfer = False
-            if len(current_connections) != 0:
-                is_transfer = current_connections[-1].line != connection.line
-
-            new_current_time = current_time
-
-            if is_transfer:
-                new_current_time = new_current_time + timedelta(minutes=TRANSFER_TIME)
-                if connection.start_time < new_current_time:
-                    continue
 
             if connection.start_time < current_time:
                 continue
@@ -74,7 +61,6 @@ def dijkstra(
             new_arrival_time = connection.end_time
 
             # Prepare new path and check if we should explore this route
-            new_path = current_path + [connection.end_stop]
             new_connections = current_connections + [connection]
 
             # Add to priority queue
@@ -85,7 +71,6 @@ def dijkstra(
                     new_duration,
                     new_arrival_time,
                     connection.end_stop,
-                    new_path,
                     new_connections,
                 ),
             )

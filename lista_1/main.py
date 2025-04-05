@@ -82,7 +82,14 @@ def create_structures():
     )
     stops = create_stops(data)
     connections = create_connections(data, stops)
+    sort_connections_in_stops(stops)
     return stops, connections
+
+
+def sort_connections_in_stops(stops: dict[str, Stop]):
+    for stop in stops.values():
+        stop.inbounds = sorted(stop.inbounds, key=lambda i: i.start_time)
+        stop.outbounds = sorted(stop.outbounds, key=lambda o: o.start_time)
 
 
 if __name__ == "__main__":

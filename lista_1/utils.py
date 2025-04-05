@@ -1,10 +1,10 @@
-from stop import Stop
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import List, Optional
 from connection import Connection
 import time
 import math
+from stop import Stop
 
 VEHICLE_VELOCITY = 50  # km/h
 TRANSFER_TIME = 1  # minutes
@@ -13,11 +13,15 @@ TRANSFER_PENALTY = 5  # minutes - possible delays resulting from making a line c
 
 @dataclass
 class SearchResult:
-    shortest_path: List[Stop]
     arrival_time: Optional[datetime] = None
-    total_duration: Optional[timedelta] = None
+    cost: Optional[timedelta | int] = None
     path_connections: List[Connection] = field(default_factory=list)
     transfers: Optional[int] = None
+
+    def get_stops(self) -> list[Stop]:
+        return [self.path_connections[0].start_stop] + [
+            conn.end_stop for conn in self.path_connections[1:]
+        ]
 
 
 class bcolors:
@@ -58,10 +62,12 @@ def print_result(result: Optional[SearchResult], start_time: datetime):
         print("Nie znaleziono połączenia.")
         return
 
-    print(f"{result.shortest_path[0].name} -> {result.shortest_path[-1].name}")
+    print(
+        f"{result.path_connections[0].start_stop.name} -> {result.path_connections[-1].end_stop.name}"
+    )
     print(f"Czas pojawienia się na przystanku: {start_time}")
     print(f"Czas dotarcia do celu: {bcolors.OKCYAN}{result.arrival_time}{bcolors.ENDC}")
-    print(f"{bcolors.OKGREEN}Czas podróży: {result.total_duration}{bcolors.ENDC}")
+    print(f"{bcolors.OKGREEN}Koszt podróży: {result.cost}{bcolors.ENDC}")
     if result.transfers:
         print(f"{bcolors.WARNING}Liczba przesiadek: {result.transfers}{bcolors.ENDC}")
 
