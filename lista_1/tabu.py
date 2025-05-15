@@ -3,7 +3,7 @@ from datetime import datetime
 from stop import Stop
 from connection import Connection
 from dijkstra import dijkstra
-from utils import SearchResult, measure_time, calculate_tabu_list_size
+from utils import SearchResult, measure_time, calculate_tabu_list_size, print_result
 
 
 class TabuSearchRoutePlanner:
@@ -29,6 +29,7 @@ class TabuSearchRoutePlanner:
             return None
 
         best_solution = current_solution
+
         tabu_list = []
 
         for _ in range(max_iterations):
@@ -78,6 +79,7 @@ class TabuSearchRoutePlanner:
             return None
 
         best_solution = current_solution
+
         tabu_list = []
 
         for _ in range(max_iterations):
@@ -147,6 +149,7 @@ class TabuSearchRoutePlanner:
             return None
 
         route.extend(return_route.path_connections)
+        print_result(create_result(start_time, route), start_time)
         return route
 
     def _generate_neighborhood(
@@ -232,8 +235,14 @@ def solve_route_planning_problem(
     if connections_solution is None:
         return None
 
-    shortest_path: dict[str, Stop] = {}
+    return create_result(start_time, connections_solution)
 
+
+def create_result(
+    start_time: datetime,
+    connections_solution: List[Connection],
+):
+    shortest_path: dict[str, Stop] = {}
     for connection in connections_solution:
         start, end = connection.start_stop, connection.end_stop
         for stop in [start, end]:

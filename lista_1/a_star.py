@@ -50,7 +50,7 @@ def a_star_min_time(
 
     # Initial queue entry: (f_score, arrival_time, stop)
     heapq.heappush(open_set, (f_score[start_stop.name], arrival_time, start_stop, []))
-
+    # TODO add closed set to avoid infinite loop
     while open_set:
         _, current_time, current_stop, current_connections = heapq.heappop(open_set)
 
@@ -77,7 +77,7 @@ def a_star_min_time(
             )
 
             # Check if this is a better path
-            if total_travel_time < g_score[neighbour.name]:
+            if total_travel_time <= g_score[neighbour.name]:
                 # Heuristic estimate to the end stop
                 heuristic_estimate = timedelta(
                     hours=heuristic_time(neighbour, end_stop)
@@ -146,6 +146,7 @@ def a_star_min_transfers(
             [],
         ),
     )
+    # TODO add closed set to avoid infinite loop
 
     while open_set:
         (
@@ -189,7 +190,7 @@ def a_star_min_transfers(
             )
 
             # Check if this is a better path
-            if new_number_of_transfers < g_score[neighbour.name]:
+            if new_number_of_transfers <= g_score[neighbour.name]:
                 heuristic_estimate = heuristic_transfers(neighbour, end_stop)
                 estimated_total_cost = new_number_of_transfers + heuristic_estimate
 
