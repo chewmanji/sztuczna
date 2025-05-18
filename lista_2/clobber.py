@@ -7,6 +7,9 @@ COLS_NUMBER = 2
 # Directions (up, down, left, right)
 DIRECTIONS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
+# Diagonals (top-left, top-right, bottom-left, bottom-right)
+DIAGONALS = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+
 
 class Player(Enum):
     WHITE = 0  # Player 1

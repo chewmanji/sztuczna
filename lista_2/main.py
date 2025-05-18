@@ -1,9 +1,8 @@
 import time
 from heruistics import (
-    possible_moves_count,
-    piece_count,
+    moveable_piece_count,
     isolated_pieces_count,
-    evaluate_connectivity,
+    blocks_analysis,
 )
 from clobber import Clobber, Player
 from minimax import minimax
@@ -61,7 +60,12 @@ def play(algorithm, depth: int, heuristic):
 
 
 # Agent vs Agent
-def play_agents(algorithm, depth: int, heuristic_for_white, heuristic_for_black):
+def play_agents(
+    algorithm,
+    depth: int,
+    heuristic_for_white,
+    heuristic_for_black,
+):
     game = Clobber(5, 6)
     visited_nodes_by_white = 0
     visited_nodes_by_black = 0
@@ -74,7 +78,7 @@ def play_agents(algorithm, depth: int, heuristic_for_white, heuristic_for_black)
             print(f"No valid moves for {game.current_player.name}")
             break
 
-        if game.current_player == Player.WHITE:
+        elif game.current_player == Player.WHITE:
             start_time = time.time()
             best_eval, best_move, visited_nodes = algorithm(
                 game, depth, heuristic_for_white, True
@@ -113,5 +117,6 @@ def play_agents(algorithm, depth: int, heuristic_for_white, heuristic_for_black)
 
 
 if __name__ == "__main__":
-    play_agents(minimax, 4, isolated_pieces_count, evaluate_connectivity)
-    play_agents(alpha_beta, 4, isolated_pieces_count, evaluate_connectivity)
+    # play_agents(minimax, 2, isolated_pieces_count, evaluate_connectivity)
+    # play_agents(alpha_beta, 3, isolated_pieces_count, evaluate_connectivity)
+    play_agents(minimax, 3, isolated_pieces_count, blocks_analysis)
