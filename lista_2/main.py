@@ -119,4 +119,5 @@ def play_agents(
 if __name__ == "__main__":
     # play_agents(minimax, 2, isolated_pieces_count, evaluate_connectivity)
     # play_agents(alpha_beta, 3, isolated_pieces_count, evaluate_connectivity)
-    play_agents(minimax, 3, isolated_pieces_count, blocks_analysis)
+    # play_agents(minimax, 3, isolated_pieces_count, blocks_analysis)
+    play(minimax, 3, blocks_analysis)
