@@ -1,0 +1,43 @@
+LB – [feature] baseline FHR value (beats per minute)
+
+AC – [feature] number of accelerations per second
+
+FM – [feature] number of fetal movements per second
+
+UC – [feature] number of uterine contractions per second
+
+DL – [feature] number of mild decelerations per second
+
+DS – [feature] number of severe decelerations per second
+
+DP – [feature] number of prolonged decelerations per second
+
+ASTV – [feature] percentage of time with abnormal short-term variability
+
+MSTV – [feature] mean value of short-term variability
+
+ALTV – [feature] percentage of time with abnormal long-term variability
+
+MLTV – [feature] mean value of long-term variability
+
+Width – [feature] width of the FHR histogram
+
+Min – [feature] minimum of the FHR histogram
+
+Max – [feature] maximum of the FHR histogram
+
+Nmax – [feature] number of histogram peaks
+
+Nzeros – [feature] number of zeros in the histogram
+
+Mode – [feature] mode of the histogram
+
+Mean – [feature] mean of the histogram
+
+Median – [feature] median of the histogram
+
+Variance – [feature] variance of the histogram
+
+Tendency – [feature] tendency of the histogram
+
+CLASS – [target] class code of the fetal morphological pattern (from 1 to 10)
